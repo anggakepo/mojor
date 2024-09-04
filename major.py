@@ -126,7 +126,7 @@ def spin(access_token, retries=3, delay=2):
                 return None, None
 
 def join_ghalz(access_token, retries=3, delay=2):
-    url = f"https://major.glados.app/api/squads/2184271295/join/"
+    url = f"https://major.glados.app/api/squads/1006503122/join/"
     headers = get_headers(access_token)
     
     for attempt in range(retries):
