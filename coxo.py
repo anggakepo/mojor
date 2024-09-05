@@ -195,6 +195,37 @@ def hold_ghalibie(access_token,coins,retries=3,delay=2):
             else:
                 return None, None
 
+def swipe_coin(token, coins, proxies=None):
+    url = "https://major.glados.app/api/swipe_coin/"
+    payload = {"coins": coins}
+
+    try:
+        response = requests.post(
+            url=url,
+            headers=headers(token=token),
+            json=payload,
+            proxies=proxies,
+            timeout=20,
+        )
+        data = response.json()
+        status = data.get("success", False)
+        return status
+    except Exception as e:
+        print(f"Error in swipe_coin: {e}")
+        return None
+
+# Function to process the swipe_coin operation
+def process_swipe_coin(token, proxies=None):
+    coins = random.randint(1000, 1200)
+    swipe_coin_status = swipe_coin(token=token, coins=coins, proxies=proxies)
+    if swipe_coin_status:
+        base.log(f"{base.white}Auto Play Swipe Coin: {base.green}Success")
+    else:
+        base.log(
+            f"{base.white}Auto Play Swipe Coin: {base.red}Not time to play, invite more friends"
+        )
+
+# Function to call the swap_coin API
 def swap_coin(token, coins, proxies=None):
     url = "https://major.glados.app/api/swap_coin/"
     payload = {"coins": coins}
@@ -202,13 +233,13 @@ def swap_coin(token, coins, proxies=None):
     try:
         response = requests.post(
             url=url,
-            headers=headers(token=token),  # Ensure you have a headers function
+            headers=headers(token=token),
             json=payload,
             proxies=proxies,
             timeout=20,
         )
         data = response.json()
-        status = data.get("success", False)  # Safely access the 'success' key
+        status = data.get("success", False)
         return status
     except Exception as e:
         print(f"Error in swap_coin: {e}")
