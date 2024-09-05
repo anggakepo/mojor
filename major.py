@@ -217,7 +217,7 @@ def get_tasks(access_token, is_daily,retries=3,delay=2):
                 return None
             
 def get_squad(access_token, squad_id,retries=3,delay=2):
-    url = f"https://major.glados.app/api/squads/2184271295/{squad_id}"
+    url = f"https://major.glados.app/api/squads/1006503122/{squad_id}"
     headers = get_headers(access_token)
     for attempt in range(retries):
         try:
