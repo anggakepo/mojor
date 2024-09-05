@@ -195,41 +195,33 @@ def hold_ghalibie(access_token,coins,retries=3,delay=2):
             else:
                 return None, None
 
-def process_swipe_coin(access_token, retries=3, delay=2):
+def swipe_coin(token, coins, proxies=None):
     url = "https://major.glados.app/api/swipe_coin/"
-    headers = get_headers(access_token)
-    coins = random.randint(1000, 1200)
     payload = {"coins": coins}
+    
+    try:
+        response = requests.post(
+            url=url,
+            headers=get_headers(access_token=token),
+            json=payload,
+            proxies=proxies,
+            timeout=20,
+        )
+        response.raise_for_status()
+        data = response.json()
+        status = data.get("success")
+        return status
+    except (requests.RequestException, ValueError) as e:
+        print(f"{RED}[ Swipe Coin ] : Error: {e}", flush=True)
+        return None
 
-    for attempt in range(retries):
-        try:
-            response = requests.post(
-                url=url,
-                headers=headers,
-                json=payload,
-                timeout=20,
-            )
-            response_json = response.json()  # Parse JSON response
-            if response.status_code == 200:
-                status = response_json.get("success", False)
-                if status:
-                    print(f"{WHITE}Auto Play Swipe Coin: {GREEN}Success")
-                else:
-                    print(f"{WHITE}Auto Play Swipe Coin: {RED}Not time to play, invite more friends")
-                return response_json, response.status_code
-            elif response.status_code == 400:
-                print(f"{RED}Bad Request: {response_json}", flush=True)
-                return response_json, response.status_code
-            else:
-                print(f"{RED}[ Swipe Coin ] : Error: Gagal mendapatkan data", flush=True)
-                return None, response.status_code
-        except (requests.RequestException, ValueError) as e:
-            if attempt < retries - 1:
-                print(f"{RED}[ Swipe Coin ] : Error Retrying... ({attempt + 1}/{retries})", end="\r", flush=True)
-                time.sleep(delay)
-            else:
-                print(f"{RED}[ Swipe Coin ] : Error: {e}", flush=True)
-                return None, None
+def process_swipe_coin(token, proxies=None):
+    coins = random.randint(1000, 1200)
+    swipe_coin_status = swipe_coin(token=token, coins=coins, proxies=proxies)
+    if swipe_coin_status:
+        print(f"{WHITE}Auto Play Swipe Coin: {GREEN}Success", flush=True)
+    else:
+        print(f"{WHITE}Auto Play Swipe Coin: {RED}Not time to play, invite more friends", flush=True)
 
 
 def get_tasks(access_token, is_daily,retries=3,delay=2):
