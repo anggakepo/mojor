@@ -294,10 +294,10 @@ def process_task(access_token, task_id,retries=3,delay=2):
 def print_welcome_message():
     print(Fore.WHITE + r"""
           
-🆂🅸🆁🅺🅴🅻
+🆂🅸🆁🅴🅻
           
-█▀▀ █▀▀ █▄░█ █▀▀ █▀█ █▀█ █░█ █▀
-█▄█ ██▄ █░▀█ ██▄ █▀▄ █▄█ █▄█ ▄█
+█▀▀█▀▀█▄░██▀▀█▀██▀██░██▀
+█▄███▄█░▀█▄██▄█▄█
           """)
     print(Fore.GREEN + Style.BRIGHT + "Major BOT")
     print(Fore.YELLOW + Style.BRIGHT + "Free Konsultasi Join Telegram Channel: https://t.me/ghalibie")
