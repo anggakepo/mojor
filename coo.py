@@ -171,58 +171,35 @@ def check_in(access_token, retries=3, delay=2):
                 return None
     
 def hold_ghalibie(access_token,coins,retries=3,delay=2):
-    url = f"https://major.glados.app/api/bonuses/coins/"
-    headers = get_headers(access_token)
-    body = {
-        "coins": coins 
-    }
+    url = "https://major.glados.app/api/swipe_coin/"
+    headers = get_headers(token)
+    payload = {"coins": coins}
+
     for attempt in range(retries):
         try:
-            response = requests.post(url, headers=headers, data=json.dumps(body))
-            response_json = response.json()  # Parse JSON response before raising for status
+            response = requests.post(
+                url=url,
+                headers=headers,
+                json=payload,
+                proxies=proxies,
+                timeout=20,
+            )
+            response_json = response.json()  # Parse JSON response
             if response.status_code == 201:
                 return response_json, response.status_code
             elif response.status_code == 400:
+                print(f"{RED}[ Swipe ] Bad Request: {response_json}", flush=True)
                 return response_json, response.status_code
             else:
-                print(f"{RED}[ Hold ] Error: Gagal mendapatkan data", flush=True)
+                print(f"{RED}[ Swipe ] Error: Failed to get data", flush=True)
                 return None, None
         except (requests.RequestException, ValueError) as e:
-            print(f"{RED}[ Hold ] Error hold: {e}", flush=True)
+            print(f"{RED}[ Swipe ] Error: {e}", flush=True)
             if attempt < retries - 1:
-                print(f"{RED}[ Hold ] : Retrying... ({attempt + 1}/{retries})", end="\r", flush=True)
+                print(f"{RED}[ Swipe ] Retrying... ({attempt + 1}/{retries})", end="\r", flush=True)
                 time.sleep(delay)
             else:
                 return None, None
-
-def swipe_coin(token, coins, proxies=None):
-    url = "https://major.glados.app/api/swipe_coin/"
-    payload = {"coins": coins}
-    
-    try:
-        response = requests.post(
-            url=url,
-            headers=get_headers(access_token=token),
-            json=payload,
-            proxies=proxies,
-            timeout=20,
-        )
-        response.raise_for_status()
-        data = response.json()
-        status = data.get("success")
-        return status
-    except (requests.RequestException, ValueError) as e:
-        print(f"{RED}[ Swipe Coin ] : Error: {e}", flush=True)
-        return None
-
-def process_swipe_coin(token, proxies=None):
-    coins = random.randint(1000, 1200)
-    swipe_coin_status = swipe_coin(token=token, coins=coins, proxies=proxies)
-    if swipe_coin_status:
-        print(f"{WHITE}Auto Play Swipe Coin: {GREEN}Success", flush=True)
-    else:
-        print(f"{WHITE}Auto Play Swipe Coin: {RED}Not time to play, invite more friends", flush=True)
-
 
 def get_tasks(access_token, is_daily,retries=3,delay=2):
     url = f"https://major.glados.app/api/tasks/?is_daily={str(is_daily).lower()}"
