@@ -169,10 +169,35 @@ def check_in(access_token, retries=3, delay=2):
                 time.sleep(delay)
             else:
                 return None
-    
+
 def hold_ghalibie(access_token,coins,retries=3,delay=2):
+    url = f"https://major.glados.app/api/bonuses/coins/"
+    headers = get_headers(access_token)
+    body = {
+        "coins": coins 
+    }
+    for attempt in range(retries):
+        try:
+            response = requests.post(url, headers=headers, data=json.dumps(body))
+            response_json = response.json()  # Parse JSON response before raising for status
+            if response.status_code == 201:
+                return response_json, response.status_code
+            elif response.status_code == 400:
+                return response_json, response.status_code
+            else:
+                print(f"{RED}[ Hold ] Error: Gagal mendapatkan data", flush=True)
+                return None, None
+        except (requests.RequestException, ValueError) as e:
+            print(f"{RED}[ Hold ] Error hold: {e}", flush=True)
+            if attempt < retries - 1:
+                print(f"{RED}[ Hold ] : Retrying... ({attempt + 1}/{retries})", end="\r", flush=True)
+                time.sleep(delay)
+            else:
+                return None, None
+
+def swipe_ghalibie(access_token,coins,retries=3,delay=2):
     url = "https://major.glados.app/api/swipe_coin/"
-    headers = get_headers(token)
+    headers = get_headers(access_token)
     payload = {"coins": coins}
 
     for attempt in range(retries):
@@ -181,7 +206,6 @@ def hold_ghalibie(access_token,coins,retries=3,delay=2):
                 url=url,
                 headers=headers,
                 json=payload,
-                proxies=proxies,
                 timeout=20,
             )
             response_json = response.json()  # Parse JSON response
@@ -406,6 +430,21 @@ def main():
                             hours = int(waktu_diff.total_seconds() // 3600)
                             minutes = int((waktu_diff.total_seconds() % 3600) // 60)
                             print(f"{RED}[ Hold ] : Already Hold. Next in {hours} hours {minutes} minutes.  ", flush=True)
+      ####################################################################################################################################################
+                ghalibie, status_code = swipe_ghalibie(access_token,coins)  # Unpack the tuple here
+                print(f"{YELLOW}[ Hold ] : Getting info...", end="\r", flush=True)
+                time.sleep(1)
+                if ghalibie is not None:
+                    if status_code == 201:
+                        print(f"{GREEN}[ swipe ] : DONE                     ", flush=True)
+                    elif status_code == 400:
+                        waktu = ghalibie.get('detail', {}).get('blocked_until')
+                        if waktu:
+                            waktu_diff = datetime.datetime.fromtimestamp(waktu) - datetime.datetime.now()
+                            hours = int(waktu_diff.total_seconds() // 3600)
+                            minutes = int((waktu_diff.total_seconds() % 3600) // 60)
+                            print(f"{RED}[ Hold ] : Already SWIPE. Next in {hours} hours {minutes} minutes.  ", flush=True)
+                         ##########################################################################################################################################################
                 ghalibie = get_tasks(access_token, True)
                 print(f"{YELLOW}[ Daily Task ] : Getting info...", end="\r", flush=True)
                 time.sleep(1)
